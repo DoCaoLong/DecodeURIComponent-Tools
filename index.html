@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract and Check User Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            background-color: #000;
+            color: #fff;
+        }
+        p {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        #copyBtn {
+            display: none;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Nhập URL</h2>
+<input type="text" id="inputText" placeholder="Nhập URL">
+<button onclick="checkUserData()">Decode</button>
+
+<h3>Kết quả:</h3>
+<p id="result"></p>
+<button id="copyBtn" onclick="copyToClipboard()">Copy</button>
+
+<script>
+    function getUserDataFromURL(url) {
+        const userKey = "user%3D";  // "user=" đã được mã hóa
+        const startIndex = url.indexOf(userKey);
+
+        if (startIndex !== -1) {
+            const substring = url.substring(startIndex);
+            const endIndex = substring.indexOf("&");
+            const userEncoded = endIndex !== -1 ? substring.substring(0, endIndex) : substring;
+            return decodeURIComponent(userEncoded);
+        }
+        return null;
+    }
+
+    function checkUserData() {
+        const url = document.getElementById('inputText').value;
+        const userData = getUserDataFromURL(url);
+
+        const resultElement = document.getElementById("result");
+        const copyBtn = document.getElementById("copyBtn");
+
+        // Kiểm tra chuỗi bắt đầu với "user={" và in ra kết quả
+        if (userData && userData.startsWith("user=")) {
+            resultElement.textContent = userData;
+            resultElement.style.color = "green";
+            copyBtn.style.display = "inline-block";
+        } else {
+            resultElement.textContent = "Không tìm thấy dữ liệu hợp lệ!";
+            resultElement.style.color = "red";
+            copyBtn.style.display = "none";
+        }
+    }
+
+    function copyToClipboard() {
+        const resultText = document.getElementById("result").textContent;
+        const tempInput = document.createElement("input");
+        tempInput.value = resultText;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        alert("Kết quả đã được sao chép!");
+    }
+</script>
+
+</body>
+</html>
