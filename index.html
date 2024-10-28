@@ -45,7 +45,7 @@
 
 <script>
     function getUserDataFromURL(url) {
-        const userKey = "user%3D";  // "user=" đã được mã hóa
+        const userKey = "query_id%3D";  
         const startIndex = url.indexOf(userKey);
 
         if (startIndex !== -1) {
@@ -64,8 +64,7 @@
         const resultElement = document.getElementById("result");
         const copyBtn = document.getElementById("copyBtn");
 
-        // Kiểm tra chuỗi bắt đầu với "user={" và in ra kết quả
-        if (userData && userData.startsWith("user=")) {
+        if (userData && userData.startsWith("query_id=")) {
             resultElement.textContent = userData;
             resultElement.style.color = "green";
             copyBtn.style.display = "inline-block";
