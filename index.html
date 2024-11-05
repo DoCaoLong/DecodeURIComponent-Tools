@@ -1,91 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extract and Check User Info</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px;
-            font-size: 16px;
-            margin-top: 10px;
-            background-color: #000;
-            color: #fff;
-        }
-        p {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        #copyBtn {
-            display: none;
-            padding: 10px;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>decodeURI -> decodeURIComponent | LDC</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+                margin: 0;
+            }
+            .input-wrap{
+                display: flex;
+                gap: 14px;
+            }
+            input[type="text"] {
+                width: 100%;
+                padding: 10px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            button {
+                padding: 10px 16px;
+                font-size: 16px;
+                background-color: #000;
+                color: #fff;
+                cursor: pointer;
+                outline: none;
+                border: 0;
+                border-radius: 4px;
+            }
+            button:hover{
+                opacity: 0.8;
+            }
+            p {
+                margin-top: 20px;
+                font-size: 18px;
+                word-wrap: break-word;
+            }
+            h2{
+                margin-top: 0;
+            }
+            #copyBtn {
+                display: none;
+                font-size: 16px;
+                margin: 0 auto;
+                background-color: green;
+            }
+            .title-result{display: none;}
+            @media screen and (max-width: 767.98px) {
+                h2{
+                    font-size: 18px;
+                }
+            }
+            
+        </style>
+    </head>
+    <body>
+        <h2>decodeURI to decodeURIComponent</h2>
+        <div class="input-wrap">
+            <input type="text" id="inputText" placeholder="Nhập chuổi" />
+            <button onclick="checkUserData()">Decode</button>
+        </div>
 
-<h2>Nhập URL</h2>
-<input type="text" id="inputText" placeholder="Nhập URL">
-<button onclick="checkUserData()">Decode</button>
+        <h3 class="title-result">Kết quả:</h3>
+        <p id="result"></p>
+        <button id="copyBtn" onclick="copyToClipboard()">Copy</button>
 
-<h3>Kết quả:</h3>
-<p id="result"></p>
-<button id="copyBtn" onclick="copyToClipboard()">Copy</button>
+        <script>
+            function getUserDataFromURL(url) {
+                // Loại bỏ dấu kép ở đầu và cuối chuỗi nếu có
+                url = url.trim();
+                if (url.startsWith('"') && url.endsWith('"')) {
+                    url = url.slice(1, -1);
+                }
 
-<script>
-    function getUserDataFromURL(url) {
-        const userKey = "query_id%3D";  
-        const startIndex = url.indexOf(userKey);
+                const userKeys = ["query_id%3D", "user%3D"];
+                let userEncoded = null;
 
-        if (startIndex !== -1) {
-            const substring = url.substring(startIndex);
-            const endIndex = substring.indexOf("&");
-            const userEncoded = endIndex !== -1 ? substring.substring(0, endIndex) : substring;
-            return decodeURIComponent(userEncoded);
-        }
-        return null;
-    }
+                for (const userKey of userKeys) {
+                    const startIndex = url.indexOf(userKey);
 
-    function checkUserData() {
-        const url = document.getElementById('inputText').value;
-        const userData = getUserDataFromURL(url);
+                    if (startIndex !== -1) {
+                        const substring = url.substring(startIndex);
+                        const endIndex = substring.indexOf("&");
+                        userEncoded =
+                            endIndex !== -1
+                                ? substring.substring(0, endIndex)
+                                : substring;
+                        break;
+                    }
+                }
 
-        const resultElement = document.getElementById("result");
-        const copyBtn = document.getElementById("copyBtn");
+                return userEncoded ? decodeURIComponent(userEncoded) : null;
+            }
 
-        if (userData && userData.startsWith("query_id=")) {
-            resultElement.textContent = userData;
-            resultElement.style.color = "green";
-            copyBtn.style.display = "inline-block";
-        } else {
-            resultElement.textContent = "Không tìm thấy dữ liệu hợp lệ!";
-            resultElement.style.color = "red";
-            copyBtn.style.display = "none";
-        }
-    }
+            function checkUserData() {
+                const url = document.getElementById("inputText").value;
+                const userData = getUserDataFromURL(url);
 
-    function copyToClipboard() {
-        const resultText = document.getElementById("result").textContent;
-        const tempInput = document.createElement("input");
-        tempInput.value = resultText;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempInput);
-        alert("Kết quả đã được sao chép!");
-    }
-</script>
+                const resultElement = document.getElementById("result");
+                const copyBtn = document.getElementById("copyBtn");
+                const titleResult = document.getElementById("title-result");
 
-</body>
+                if (
+                    userData &&
+                    (userData.startsWith("query_id=") ||
+                        userData.startsWith("user="))
+                ) {
+                    resultElement.textContent = userData;
+                    resultElement.style.color = "green";
+                    copyBtn.style.display = "block";
+                    titleResult.style.display = "block";
+                } else {
+                    resultElement.textContent =
+                        "Không tìm thấy dữ liệu hợp lệ!";
+                    resultElement.style.color = "red";
+                    copyBtn.style.display = "none";
+                    titleResult.style.display = "none";
+                }
+            }
+
+            function copyToClipboard() {
+                const resultText =
+                    document.getElementById("result").textContent;
+
+                navigator.clipboard
+                    .writeText(resultText)
+                    .then(() => {
+                        alert("Kết quả đã được sao chép!");
+                    })
+                    .catch((err) => {
+                        console.error("Lỗi khi sao chép văn bản: ", err);
+                        alert("Không thể sao chép văn bản.");
+                    });
+            }
+        </script>
+    </body>
 </html>
